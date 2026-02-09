@@ -1,5 +1,7 @@
 //import {GPG} from 'gpg-ts'
 import {deleteStoreAssetVotes, loadStoreAssetVotes, NestedAssetVotes, upsertStoreAssetVotes} from './store'
+import {gpg} from '../services/gpg'
+const fs = require('node:fs');
 
 export interface AssetVote {
   ts: number;
@@ -16,29 +18,27 @@ export interface AssetVote {
 
 export const ASSET_VOTE_TYPES = ["void", "intent", "process", "execute", "suspicious", "danger"]
 
-export const validateAssetVote = (assetVote: AssetVote) => {
-  // validate gpg sig/sid
-  //GPG.verifySignature("...", fn...);
+export const validateAssetVote = async (assetVote: AssetVote) => {
+  await gpg.importKey(assetVote.spk)
+  const sig = assetVote.sig
+  assetVote.sig = ''
+  return gpg.verifySignature(sig, JSON.stringify(assetVote))
 };
 
 export const validateAssetVoteAndOwnership = (assetVote: AssetVote, refAssetVote: AssetVote, failIfEqual: boolean = true) => {
-  // validate gpg sig of assetVote and common ownership
-  //GPG.verifySignature(sig, [], fn...);
   validateAssetVote(assetVote);
-  if(assetVote.sid !== refAssetVote.sid)
+  if(assetVote.spk !== refAssetVote.spk)
     throw new Error("Votes have different owners.")
   if(failIfEqual && assetVote.sig === refAssetVote.sig)
     throw new Error("Votes are equal.")
 };
 
 export const setAssetVote = (assetVote: AssetVote) => {
-  // const prevAssetVote: AssetVote = assetVotes[assetVote.uri][assetVote.model][assetVote.sid]
   upsertStoreAssetVotes([assetVote])
   assetVotes[assetVote.uri][assetVote.model][assetVote.sid] = assetVote
 };
 
 export const unsetAssetVote = (assetVote: AssetVote) => {
-  // const prevAssetVote: AssetVote = assetVotes[assetVote.uri][assetVote.model][assetVote.sid]
   deleteStoreAssetVotes([assetVote])
   delete assetVotes[assetVote.uri][assetVote.model][assetVote.sid]
 };

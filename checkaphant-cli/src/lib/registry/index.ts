@@ -31,6 +31,12 @@ export function _registerAssetVote(assetVote: {}) {
     .then((response) => response.data);
 }
 
+export function _revokeAssetVote(assetVote: {}) {
+  return http
+    .put(`asset/${assetVote}/revoke`, {vote: assetVote})
+    .then((response) => response.data);
+}
+
 export const syncKeyVotesIndex = () => {
   // sync local index with remote according to local trustdb
   _listKeyVotes().then((items) => {

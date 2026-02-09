@@ -1,6 +1,9 @@
 import { createHash } from 'node:crypto'
 import {refreshStoreAssetVotes, loadStoreAssetVotes, NestedAssetVotes, upsertStoreAssetVotes} from './store'
 import {registerAssetVote} from '../lib/registry'
+import {gpg} from '../services/gpg'
+const fs = require('node:fs');
+
 
 //import { GPG } from 'gpg-ts'
 
@@ -24,14 +27,29 @@ export const hashAssetVoteContent = (content: string) => {
   return createHash('sha512').update(content).digest('hex')
 };
 
-export const signAssetVote = (assetVote: AssetVote) => {
-  //GPG.clearsign(JSON.stringify(assetVote), (sig: string) => assetVote.sig = sig);
+export const signAssetVote = async (assetVote: AssetVote, asset: string|undefined) => {
+  // do we need to fetch the asset
+  if(assetVote.hash === '') {
+    if(!asset) {
+      // fetch content per uri/format
+      throw new Error("Asset resolution not integrated yet, provide hash or local formatted asset path.")
+    }
+    assetVote.hash = hashAssetVoteContent(fs.readFileSync(asset))
+  }
+  const sid = await gpg.getId()
+  const spk = await gpg.getPublicKey()
+  assetVote.sid = sid
+  assetVote.spk = spk
+  const sig = await gpg.signDoc(JSON.stringify(assetVote))
+  assetVote.sig = sig
   return assetVote;
 };
 
-export const validateAssetVote = (assetVote: AssetVote) => {
-  // validate gpg sig/sid
-  //GPG.verifySignature("...", fn...);
+export const validateAssetVote = async (assetVote: AssetVote) => {
+  await gpg.importKey(assetVote.spk)
+  const sig = assetVote.sig
+  assetVote.sig = ''
+  return gpg.verifySignature(sig, JSON.stringify(assetVote))
 };
 
 export const getAssetVotes = (uri: string, hash: string) => {

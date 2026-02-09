@@ -1,5 +1,7 @@
 //import {GPG} from 'gpg-ts'
 import {loadStoreKeyVotes, deleteStoreKeyVotes, upsertStoreKeyVotes, NestedKeyVotes} from './store'
+import {gpg} from '../services/gpg'
+const fs = require('node:fs');
 
 export interface KeyVote {
   ts: number;
@@ -14,22 +16,21 @@ export interface KeyVote {
 
 export const KEY_VOTE_TYPES = ["void", "intent", "suspicious", "danger"]
 
-export const validateKeyVote = (keyVote: KeyVote) => {
-  // validate gpg sig/sid
-  //GPG.verifySignature("...", fn...);
+export const validateKeyVote = async (keyVote: KeyVote) => {
+  await gpg.importKey(keyVote.spk)
+  const sig = keyVote.sig
+  keyVote.sig = ''
+  return gpg.verifySignature(sig, JSON.stringify(keyVote))
 };
 
 export const validateKeyVoteAndOwnership = (keyVote: KeyVote, refKeyVote: KeyVote, failIfEqual: boolean = true) => {
-  // validate gpg sig of keyVote and common ownership
-  //GPG.verifySignature("...", fn...);
   validateKeyVote(keyVote)
-  if(keyVote.sid !== refKeyVote.sid)
+  if(keyVote.spk !== refKeyVote.spk)
     throw new Error("Votes have different owners.")
 
   if(failIfEqual && keyVote.sig === refKeyVote.sig)
     throw new Error("Votes are equal.")
 };
-
 
 export const setKeyVote = (keyVote: KeyVote) => {
   // const prevKeyVote: KeyVote = keyVotes[keyVote.kid][keyVote.sid]

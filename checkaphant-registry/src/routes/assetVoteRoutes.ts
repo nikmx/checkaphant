@@ -13,6 +13,6 @@ router.get('/', getAssetVotes);
 router.get('/:uri/:sid/:model', getAssetVoteByKeys);
 router.post('/', createAssetVote);
 router.put('/:uri/:sid', updateAssetVote);
-router.delete('/:uri/:sid', deleteAssetVote);
+router.put('/:uri/:sid/revoke', deleteAssetVote);
 
 export default router;

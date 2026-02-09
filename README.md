@@ -3,18 +3,19 @@ checkaphant
 
 <div class="grid" markdown>
 
-<q>A checkered phant that cares about friends and their opinions.</q>
+<q>A checkered elephant who cares about friends, believes in collective strength, remembers in detail and shares. Pawoo!</q>
 
-![The checkered elephant.](./assets/checkeredphant.png)
+![The checkered elephant.](./assets/checkaphant.png)
 
 </div>
 
-This project aims trying to establish a concept of collective
-trust management for identities and digital assets. This is e.g.
-especially interesting in the context of autonomous agents which
-incorporate communication with and from various identities and
-further digital assets in desicion making and ultimately actions
-taken.
+This project aims to establish a concept of collective
+trustful meta data management for identities and digital assets.
+
+This is e.g. especially interesting in the context of autonomous 
+agents which incorporate communication with and from various 
+identities and further digital assets in desicion making and 
+ultimately actions taken.
 
 The question is, can we get to more reliable
 autonomous agents, when we could have a concept of integrity and
@@ -34,7 +35,7 @@ We'd then move on to performance and scaling considerations.
 
 # Concept
 
-Imagine your agents interaction would follow two principles:
+Imagine your agents interaction would follow these principles:
 
 - Each communication message from any partner carries a cryptographic signature
 - Each data asset the agent utilizes like e.g. skills or content
@@ -66,3 +67,13 @@ we trust in identities or digital assets involved in a transparent cryptographic
 an important part is, we could do so collectively.
 
 # Architecture
+
+coming soon ...
+
+# Setup
+
+coming soon ...
+
+# Usage examples
+
+coming soon ...

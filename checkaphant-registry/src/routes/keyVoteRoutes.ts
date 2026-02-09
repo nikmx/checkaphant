@@ -13,6 +13,6 @@ router.get('/', getKeyVotes);
 router.get('/:kid/:sid', getKeyVoteByKeys);
 router.post('/', createKeyVote);
 router.put('/:kid/:sid', updateKeyVote);
-router.delete('/:kid/:sid', deleteKeyVote);
+router.put('/:kid/:sid/revoke', deleteKeyVote);
 
 export default router;

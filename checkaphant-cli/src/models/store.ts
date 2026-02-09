@@ -108,6 +108,15 @@ export const upsertStoreKeyVotes = db.transaction((keyVotes: KeyVote[]) => {
     }
 });
 
+export const deleteStoreKeyVotes = db.transaction((keyVotes: KeyVote[]) => {
+    const stmt_delete = db.prepare(`
+        DELETE FROM KEY_VOTE WHERE kid=? AND sid = ?
+    `);
+    for (const i in keyVotes) {
+        stmt_delete.run(keyVotes[i].kid, keyVotes[i].sid)
+    }
+});
+
 export const loadStoreAssetVotes = () => {
     const stmt = db.prepare(`
         SELECT * FROM ASSET_VOTE
@@ -166,5 +175,14 @@ export const upsertStoreAssetVotes = db.transaction((assetVotes: AssetVote[]) =>
             assetVotes[i].sid, 
             assetVotes[i].spk
         )
+    }
+});
+
+export const deleteStoreAssetVotes = db.transaction((assetVotes: AssetVote[]) => {
+    const stmt_delete = db.prepare(`
+        DELETE FROM ASSET_VOTE WHERE uri=? AND model = ? AND sid = ?
+    `);
+    for (const i in assetVotes) {
+        stmt_delete.run(assetVotes[i].uri, assetVotes[i].model, assetVotes[i].sid)
     }
 });
