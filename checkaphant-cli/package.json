@@ -50,14 +50,11 @@
     "bin": "checkaphant-cli",
     "dirname": "checkaphant-cli",
     "commands": "./dist/commands",
-    "plugins": [
-      "@oclif/plugin-help",
-      "@oclif/plugin-plugins"
-    ],
+    "plugins": [],
     "topicSeparator": " ",
     "topics": {
       "hello": {
-        "description": "welcome ... enthusiast! what's our state of love and trust?"
+        "description": "welcome and pawoo! what your state of love and trust?"
       }
     }
   },

@@ -6,10 +6,10 @@ import { syncAssetVotes } from '../../models/assetVote'
 
 export default class SyncIndex extends Command {
   static args = {}
-  static description = 'Sync votes index'
+  static description = 'sync votes index'
   static examples = [
     `<%= config.bin %> <%= command.id %>
-syncing index! (./src/commands/sync/index.ts)
+synced key/asset index! (./src/commands/sync/index.ts)
 `,
   ]
   static flags = {}

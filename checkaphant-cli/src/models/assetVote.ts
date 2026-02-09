@@ -57,7 +57,15 @@ export const getAssetVotes = (uri: string, hash: string) => {
   return votes;
 };
 
-export const checkAssetVotes = (uri: string, hash: string) => {
+export const checkAssetVotes = (uri: string, hash: string|undefined, asset: string|undefined, format: string|undefined) => {
+  // do we need to fetch the asset
+  if(!hash) {
+    if(!asset) {
+      // fetch content per uri/format
+      throw new Error("Asset resolution not integrated yet, provide hash or local formatted asset path.")
+    }
+    hash = hashAssetVoteContent(fs.readFileSync(asset))
+  }
   const votes = getAssetVotes(uri, hash)
   // transform to output format
   return votes;

@@ -3,23 +3,22 @@ import { assetVotes, AssetVote, checkAssetVotes } from '../../models/assetVote';
 
 export default class CheckAsset extends Command {
   static args = {
-    uri: Args.string({description: 'Asset uri', required: true}),
-    hash: Args.string({description: 'Asset hash', required: true}),
+    uri: Args.string({description: 'asset uri', required: true}),    
   }
-  static description = 'Check asset votes'
+  static description = 'check asset votes'
   static examples = [
-    `<%= config.bin %> <%= command.id %> https://some-unknown-source.ahoi
-checking https://some-unknown-source.ahoi! (./src/commands/check/index.ts)
-`,
+    `<%= config.bin %> <%= command.id %> https://some-unknown-source.ahoi --asset=some-formatted-asset-content.file`
   ]
   static flags = {
-    //from: Flags.string({char: 'f', description: 'Who is saying hello', required: true}),
+    hash: Flags.string({description: 'asset hash', required: false}),
+    asset: Flags.string({description: 'asset path', required: false}),
+    format: Flags.string({description: 'asset format', required: false}),
   }
 
   async run(): Promise<void> {
     const {args, flags} = await this.parse(CheckAsset)
 
-    const res = checkAssetVotes(args.uri, args.hash)
-    this.log(`Check result:\n\n${JSON.stringify(res)}\n\n(./src/commands/check/asset.ts)`)
+    const res = checkAssetVotes(args.uri, flags.hash, flags.asset, flags.format)
+    this.log(`check result:\n\n${JSON.stringify(res)}\n\n(./src/commands/check/asset.ts)`)
   }
 }
