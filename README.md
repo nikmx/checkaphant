@@ -1,7 +1,7 @@
 checkaphant
 ===========
 
-![The checkered phant.](assets/checkerdphant.png)
+![The checkered phant.](./assets/checkeredphant.png)
 
 This is a project trying to establish a concept of collective
 trust management for identities and digital assets. This is e.g.
