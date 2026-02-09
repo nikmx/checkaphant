@@ -1,4 +1,4 @@
-import { registerKeyVote } from '../lib/registry';
+import { registerKeyVote, revokeKeyVote, syncKeyVotesIndex } from '../lib/registry';
 import {refreshStoreKeyVotes, NestedKeyVotes, loadStoreKeyVotes, upsertStoreKeyVotes, deleteStoreKeyVotes} from './store'
 import {gpg} from '../services/gpg'
 const fs = require('node:fs');
@@ -58,7 +58,7 @@ export const unsetKeyVote = (keyVote: KeyVote, local=false) => {
     deleteStoreKeyVotes([keyVote])
     keyVotes = loadStoreKeyVotes()
   } else {
-    unregisterKeyVote(keyVote)
+    revokeKeyVote(keyVote)
   }
 };
 
@@ -66,5 +66,9 @@ export const resetKeyVotes = (keyVotes: KeyVote[]) => {
   refreshStoreKeyVotes(keyVotes)
   keyVotes = loadStoreKeyVotes()
 };
+
+export const syncKeyVotes = () => {
+  syncKeyVotesIndex()
+}
 
 export let keyVotes: NestedKeyVotes = loadStoreKeyVotes();

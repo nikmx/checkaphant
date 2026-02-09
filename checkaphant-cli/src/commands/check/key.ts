@@ -19,6 +19,6 @@ checking https://some-unknown-source.ahoi! (./src/commands/check/index.ts)
     const {args, flags} = await this.parse(CheckKey)
 
     const res = checkKeyVotes(args.kid)
-    this.log(`Check result:\n${JSON.stringify(res)}! (./src/commands/check/key.ts)`)
+    this.log(`Check result:\n\n${JSON.stringify(res)}\n\n(./src/commands/check/key.ts)`)
   }
 }

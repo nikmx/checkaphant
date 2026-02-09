@@ -2,17 +2,17 @@ import { Router } from 'express';
 import {
   createAssetVote,
   getAssetVotes,
-  getAssetVoteByKeys,
+  getAssetVotesByKeys,
   updateAssetVote,
   deleteAssetVote,
 } from '../controllers/assetVoteController';
 
 const router = Router();
 
-router.get('/', getAssetVotes);
-router.get('/:uri/:sid/:model', getAssetVoteByKeys);
+router.get('/index', getAssetVotes);
+router.get('/', getAssetVotesByKeys);
 router.post('/', createAssetVote);
-router.put('/:uri/:sid', updateAssetVote);
-router.put('/:uri/:sid/revoke', deleteAssetVote);
+router.put('/', updateAssetVote);
+router.put('/revoke', deleteAssetVote);
 
 export default router;

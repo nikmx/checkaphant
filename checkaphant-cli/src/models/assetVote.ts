@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
-import {refreshStoreAssetVotes, loadStoreAssetVotes, NestedAssetVotes, upsertStoreAssetVotes} from './store'
-import {registerAssetVote} from '../lib/registry'
+import {refreshStoreAssetVotes, loadStoreAssetVotes, NestedAssetVotes, upsertStoreAssetVotes, deleteStoreAssetVotes} from './store'
+import {registerAssetVote, revokeAssetVote, syncAssetVotesIndex} from '../lib/registry'
 import {gpg} from '../services/gpg'
 const fs = require('node:fs');
 
@@ -71,6 +71,20 @@ export const setAssetVote = (assetVote: AssetVote, local=false) => {
     registerAssetVote(assetVote)
   }
 };
+
+
+export const unsetAssetVote = (assetVote: AssetVote, local=false) => {
+  if (local) {
+    deleteStoreAssetVotes([assetVote])
+    assetVotes = loadStoreAssetVotes()
+  } else {
+    revokeAssetVote(assetVote)
+  }
+};
+
+export const syncAssetVotes = () => {
+  syncAssetVotesIndex()
+}
 
 export const resetAssetVotes = (assetVotes: AssetVote[]) => {
   refreshStoreAssetVotes(assetVotes)

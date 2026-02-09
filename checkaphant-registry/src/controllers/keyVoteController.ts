@@ -33,17 +33,31 @@ export const getKeyVotes = (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-// Read single vote
-export const getKeyVoteByKeys = (req: Request, res: Response, next: NextFunction) => {
+// Read filtered votes
+export const getKeyVotesByKeys = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const kid = req.params.kid as string;
-    const sid = req.params.sid as string;
-    const vote = keyVotes[kid] && keyVotes[kid][sid];
-    if (!vote) {
-      res.status(404).json({ message: 'KeyVote not found' });
+    const kid = req.query.kid as string;
+    const sid = req.query.sid as string;
+    let votes: KeyVote[] = []
+    if (kid && keyVotes[kid]) {
+      if(sid && keyVotes[kid][sid]) {
+        votes = [keyVotes[kid][sid]]        
+      } else {
+        votes = Object.values(keyVotes[kid])
+      }
+    } else if (sid) {
+      for(const i in keyVotes) {
+        if(keyVotes[i][sid]) {
+          votes.push(keyVotes[i][sid])
+        }
+      }
+    }
+    
+    if (votes.length === 0) {
+      res.status(404).json({ message: 'No votes found' });
       return;
     }
-    res.json({vote: vote});
+    res.json({votes: votes});
   } catch (error) {
     next(error);
   }
@@ -52,8 +66,8 @@ export const getKeyVoteByKeys = (req: Request, res: Response, next: NextFunction
 // Update a vote
 export const updateKeyVote = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const kid = req.body.vote.kid;
     const sid = req.body.vote.sid;
+    const kid = req.body.vote.kid;
     const vote = keyVotes[kid] && keyVotes[kid][sid];
     if (!vote) {
       res.status(404).json({ message: 'KeyVote not found' });
@@ -71,8 +85,8 @@ export const updateKeyVote = (req: Request, res: Response, next: NextFunction) =
 // Delete a vote
 export const deleteKeyVote = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const kid = req.body.vote.kid;
     const sid = req.body.vote.sid;
+    const kid = req.body.vote.kid;
     const vote = keyVotes[kid] && keyVotes[kid][sid];    
     if (!vote) {
       res.status(404).json({ message: 'KeyVote not found' });

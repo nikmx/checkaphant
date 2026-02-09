@@ -2,17 +2,17 @@ import { Router } from 'express';
 import {
   createKeyVote,
   getKeyVotes,
-  getKeyVoteByKeys,
+  getKeyVotesByKeys,
   updateKeyVote,
   deleteKeyVote,
 } from '../controllers/keyVoteController';
 
 const router = Router();
 
-router.get('/', getKeyVotes);
-router.get('/:kid/:sid', getKeyVoteByKeys);
+router.get('/index', getKeyVotes);
+router.get('/', getKeyVotesByKeys);
 router.post('/', createKeyVote);
-router.put('/:kid/:sid', updateKeyVote);
-router.put('/:kid/:sid/revoke', deleteKeyVote);
+router.put('/', updateKeyVote);
+router.put('/revoke', deleteKeyVote);
 
 export default router;

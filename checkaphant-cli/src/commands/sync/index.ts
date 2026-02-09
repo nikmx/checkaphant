@@ -1,4 +1,6 @@
 import {Command} from '@oclif/core'
+import { syncKeyVotes } from '../../models/keyVote'
+import { syncAssetVotes } from '../../models/assetVote'
 
 // sync local votes according to trusdb
 
@@ -13,6 +15,8 @@ syncing index! (./src/commands/sync/index.ts)
   static flags = {}
 
   async run(): Promise<void> {
-    this.log('syncing index! (./src/commands/sync/index.ts)')
+    syncKeyVotes()
+    syncAssetVotes()
+    this.log('synced key/asset index! (./src/commands/sync/index.ts)')
   }
 }

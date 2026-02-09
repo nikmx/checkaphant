@@ -20,6 +20,6 @@ checking https://some-unknown-source.ahoi! (./src/commands/check/index.ts)
     const {args, flags} = await this.parse(CheckAsset)
 
     const res = checkAssetVotes(args.uri, args.hash)
-    this.log(`Check result:\n${JSON.stringify(res)}! (./src/commands/check/asset.ts)`)
+    this.log(`Check result:\n\n${JSON.stringify(res)}\n\n(./src/commands/check/asset.ts)`)
   }
 }

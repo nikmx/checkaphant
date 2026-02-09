@@ -28,8 +28,7 @@ export const createAssetVote = (req: Request, res: Response, next: NextFunction)
 
 // Read all assetVotes
 export const getAssetVotes = (req: Request, res: Response, next: NextFunction) => {
-  try {
-    
+  try {    
     res.json({votes: _flatten_asset_votes(assetVotes)});
   } catch (error) {
     next(error);
@@ -37,17 +36,33 @@ export const getAssetVotes = (req: Request, res: Response, next: NextFunction) =
 };
 
 // Read single vote
-export const getAssetVoteByKeys = (req: Request, res: Response, next: NextFunction) => {
+export const getAssetVotesByKeys = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const uri = req.params.uri as string;
-    const sid = req.params.sid as string;
-    const model = req.params.model as string;
-    const vote = assetVotes[uri] && assetVotes[uri][model] && assetVotes[uri][model][sid];
-    if (!vote) {
-      res.status(404).json({ message: 'AssetVote not found' });
+    const sid = req.query.sid as string;
+    const uri = req.query.uri as string;    
+    const model = req.query.model as string;
+    let votes: AssetVote[] = []
+    if (uri && assetVotes[uri]) {
+      if(model && assetVotes[uri][model]) {
+        votes = Object.values(assetVotes[uri][model])
+      } else {
+        for (const i in assetVotes[uri]) {
+          votes = votes.concat(Object.values(assetVotes[uri][i]))
+        }
+      }
+    } else if (model) {
+      for(const i in assetVotes) {
+        if(assetVotes[i][model]) {
+          votes = votes.concat(Object.values(assetVotes[i][model]))
+        }
+      }
+    }
+
+    if (votes.length === 0) {
+      res.status(404).json({ message: 'No votes found' });
       return;
     }
-    res.json({vote: vote});
+    res.json({vote: votes});
   } catch (error) {
     next(error);
   }

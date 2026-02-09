@@ -9,7 +9,7 @@ const http = axios.create({
 
 export function _listKeyVotes() {
   return http
-    .get(`key`)
+    .get(`key/index`)
     .then((response) => response.data.votes);
 }
 
@@ -19,9 +19,16 @@ export function _registerKeyVote(keyVote: {}) {
     .then((response) => response.data);
 }
 
+
+export function _revokeKeyVote(keyVote: {}) {
+  return http
+    .post(`key/revoke`, {vote: keyVote})
+    .then((response) => response.data);
+}
+
 export function _listAssetVotes() {
   return http
-    .get(`asset`)
+    .get(`asset/index`)
     .then((response) => response.data.votes);
 }
 
@@ -33,7 +40,7 @@ export function _registerAssetVote(assetVote: {}) {
 
 export function _revokeAssetVote(assetVote: {}) {
   return http
-    .put(`asset/${assetVote}/revoke`, {vote: assetVote})
+    .put(`asset/revoke`, {vote: assetVote})
     .then((response) => response.data);
 }
 
@@ -47,20 +54,26 @@ export const syncKeyVotesIndex = () => {
 };
 
 export const registerKeyVote = (keyVote: KeyVote) => {
-  // push to registry relay
   _registerKeyVote(keyVote)
+};
+
+export const revokeKeyVote = (keyVote: KeyVote) => {
+  _revokeKeyVote(keyVote)
 };
 
 export const syncAssetVotesIndex = () => {
   // sync local index with remote according to local trustdb
   _listAssetVotes().then((items) => {
-    // TODO do local validation and trust extraction
-    // transform and process to local index
+    // TODO do local validation, transform and process to local index
     resetAssetVotes(items) 
   })
 };
 
 export const registerAssetVote = (assetVote: AssetVote) => {
-  // push to registry relay
   _registerAssetVote(assetVote)
+};
+
+
+export const revokeAssetVote = (assetVote: AssetVote) => {
+  _revokeAssetVote(assetVote)
 };
