@@ -1,5 +1,5 @@
 import {Args, Command, Flags} from '@oclif/core'
-import { assetVotes, AssetVote, signAssetVote, setAssetVote, hashAssetVoteContent } from '../../models/assetVote'
+import { assetVotes, AssetVote, signAssetVote, setAssetVote, unsetAssetVote, hashAssetVoteContent } from '../../models/assetVote'
 
 export default class VoteAsset extends Command {
   static args = {
@@ -18,8 +18,8 @@ voting asset ...! (./src/commands/vote/asset.ts)
     type: Flags.string({description: 'type', required: true}),
     rate: Flags.integer({description: 'rate', required: true}),
     model: Flags.string({description: 'model', required: true}),
-    local: Flags.boolean({char: 'l'}),
-    revoke: Flags.boolean({char: 'r'}),
+    local: Flags.boolean({char: 'l', description: 'vote locally', required: false}),
+    revoke: Flags.boolean({char: 'r', description: 'revoke', required: false}),
   }
 
   async run(): Promise<void> {
@@ -40,8 +40,8 @@ voting asset ...! (./src/commands/vote/asset.ts)
 
     newAssetVote = await signAssetVote(newAssetVote, flags.asset)
     if(flags.revoke)
-      unsetAssetVote(newAssetVote)
+      unsetAssetVote(newAssetVote, !!flags.local)
     else
-      setAssetVote(newAssetVote)
+      setAssetVote(newAssetVote, !!flags.local)
   }
 }

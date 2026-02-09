@@ -1,5 +1,5 @@
 import {Args, Command, Flags} from '@oclif/core'
-import { keyVotes, KeyVote, signKeyVote, setKeyVote } from '../../models/keyVote';
+import { keyVotes, KeyVote, signKeyVote, setKeyVote, unsetKeyVote } from '../../models/keyVote';
 import { registerKeyVote } from '../../lib/registry';
 import { gpg } from '../../services/gpg'
 
@@ -16,7 +16,8 @@ voting key ...! (./src/commands/vote/key.ts)
   static flags = {
     type: Flags.string({description: 'type', required: true}),
     rate: Flags.integer({description: 'rate', required: true}),
-    local: Flags.string({char: 'l', description: 'Vote locally', required: false}),
+    local: Flags.string({char: 'l', description: 'vote locally', required: false}),
+    revoke: Flags.boolean({char: 'r', description: 'revoke', required: false}),
   }
 
   async run(): Promise<void> {
@@ -33,6 +34,9 @@ voting key ...! (./src/commands/vote/key.ts)
     }
     
     newKeyVote = await signKeyVote(newKeyVote)
-    setKeyVote(newKeyVote, !!flags.local)
+    if(flags.revoke)
+      unsetKeyVote(newKeyVote, !!flags.local)
+    else
+      setKeyVote(newKeyVote, !!flags.local)
   }
 }
