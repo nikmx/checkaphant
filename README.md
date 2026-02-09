@@ -1,9 +1,15 @@
 checkaphant
 ===========
 
-![The checkered phant.](./assets/checkeredphant.png)
+<div class="grid" markdown>
 
-This is a project trying to establish a concept of collective
+<q>A checkered phant that cares about friends and their opinions.</q>
+
+![The checkered elephant.](./assets/checkeredphant.png)
+
+</div>
+
+This project aims trying to establish a concept of collective
 trust management for identities and digital assets. This is e.g.
 especially interesting in the context of autonomous agents which
 incorporate communication with and from various identities and
