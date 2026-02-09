@@ -10,9 +10,9 @@ interface Config {
 const config: Config = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT) || 3000,
-  indexFile: process.env.checkaphant_INDEX_FILE || '.store.db',
-  keyringFile: process.env.checkaphant_KEYRING_FILE || null,
-  keyId: process.env.checkaphant_PUBKEY_ID || null
+  indexFile: process.env.CHECKAPHANT_INDEX_FILE || '.store.db',
+  keyringFile: process.env.CHECKAPHANT_KEYRING_FILE || null,
+  keyId: process.env.CHECKAPHANT_PUBKEY_ID || null
 };
 
 export default config;
