@@ -1,11 +1,12 @@
 import {Args, Command, Flags} from '@oclif/core'
 import { assetVotes, AssetVote, signAssetVote, setAssetVote, unsetAssetVote, hashAssetVoteContent, ASSET_VOTE_TYPES } from '../../models/assetVote'
+import { getCurrentDigitalIdentity } from '../../models/digitalIdentity'
 
-export default class VoteAsset extends Command {
+export default class SignAssetVote extends Command {
   static args = {
       uri: Args.string({description: 'uri', required: true}),    
     }
-  static description = 'vote asset'
+  static description = 'sign asset vote'
   static examples = [
     `<%= config.bin %> <%= command.id %>
 `,
@@ -22,8 +23,8 @@ export default class VoteAsset extends Command {
   }
 
   async run(): Promise<void> {
-    const {args, flags} = await this.parse(VoteAsset)    
-
+    const {args, flags} = await this.parse(SignAssetVote)    
+    const dId = await getCurrentDigitalIdentity()
     let newAssetVote: AssetVote = {
       ts: Date.now(), 
       uri: args.uri,
@@ -32,15 +33,13 @@ export default class VoteAsset extends Command {
       type: flags.type,
       rate: flags.rate,
       model: flags.model,
-      sid: '',
-      sig: '',
-      spk: ''
+      sid: dId.id,
+      sig: ''
     }
-
     newAssetVote = await signAssetVote(newAssetVote, flags.asset)
     if(flags.revoke)
-      unsetAssetVote(newAssetVote, !!flags.local)
+      unsetAssetVote(newAssetVote, dId, !!flags.local)
     else
-      setAssetVote(newAssetVote, !!flags.local)
+      setAssetVote(newAssetVote, dId, !!flags.local)
   }
 }

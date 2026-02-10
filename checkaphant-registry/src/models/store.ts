@@ -2,7 +2,11 @@ import config from '../config/config'
 //import Database from 'better-sqlite3'
 import { KeyVote } from './keyVote'
 import {AssetVote} from './assetVote'
+import { DigitalIdentity } from './digitalIdentity';
 
+export interface NestedDigitalIdentities {
+    [key: string]: DigitalIdentity;
+}
 
 export interface NestedKeyVotes {
     [key: string]: {
@@ -22,6 +26,17 @@ const db = require('better-sqlite3')(config.indexFile, { fileMustExist: false })
 db.pragma('journal_mode = WAL');
 
 const initializeStoreSchema = () => {
+    const dIdTable = `
+        CREATE TABLE IF NOT EXISTS 
+        DIGITAL_IDENTITY 
+        (
+            ts LONG,
+            id TEXT,
+            pubkey TEXT
+        )
+    `;
+    db.prepare(dIdTable).run();
+
     const assetVoteTable = `
         CREATE TABLE IF NOT EXISTS 
         ASSET_VOTE 
@@ -34,8 +49,7 @@ const initializeStoreSchema = () => {
             rate INTEGER,
             model TEXT,
             sig TEXT,
-            sid TEXT,
-            spk TEXT
+            sid TEXT
         )
     `;
     db.prepare(assetVoteTable).run();
@@ -49,14 +63,50 @@ const initializeStoreSchema = () => {
             type TEXT,
             rate INTEGER,
             sig TEXT,
-            sid TEXT,
-            spk TEXT
+            sid TEXT
         )
     `;
     db.prepare(keyVoteTable).run();
 }
 
 initializeStoreSchema()
+
+
+export const loadStoreDigitalIdentities = () => {
+    const stmt = db.prepare(`
+        SELECT * FROM DIGITAL_IDENTITY
+    `);
+    return stmt.all().map((st: NestedDigitalIdentities, i: DigitalIdentity) => {
+        st[i.id] = i
+        return st
+    }, {});
+}
+
+export const deleteStoreDigitalIdentities = db.transaction((dIds: DigitalIdentity[]) => {
+    const stmt_delete = db.prepare(`
+        DELETE FROM DIGITAL_IDENTITY WHERE id=?
+    `);
+    for (const i in dIds) {
+        stmt_delete.run(dIds[i].id)
+    }
+});
+
+export const upsertStoreDigitalIdentities = db.transaction((dIds: DigitalIdentity[]) => {
+    const stmt_delete = db.prepare(`
+        DELETE FROM DIGITAL_IDENTITY WHERE id=?
+    `);
+    const stmt_insert = db.prepare(`
+        INSERT INTO DIGITAL_IDENTITY (ts, id, pubkey) VALUES(?,?,?)
+    `);
+    for (const i in dIds) {
+        stmt_delete.run(dIds[i].id)
+        stmt_insert.run(
+            Date.now(), 
+            dIds[i].id, 
+            dIds[i].pubkey
+        )
+    }
+});
 
 export const loadStoreKeyVotes = () => {
     const stmt = db.prepare(`
@@ -83,7 +133,7 @@ export const upsertStoreKeyVotes = db.transaction((keyVotes: KeyVote[]) => {
         DELETE FROM KEY_VOTE WHERE kid=? AND sid = ?
     `);
     const stmt_insert = db.prepare(`
-        INSERT INTO KEY_VOTE (ts, kid, type, rate, sig, sid, spk) VALUES(?,?,?,?,?,?,?)
+        INSERT INTO KEY_VOTE (ts, kid, type, rate, sig, sid) VALUES(?,?,?,?,?,?)
     `);
     for (const i in keyVotes) {
         stmt_delete.run(keyVotes[i].kid, keyVotes[i].sid)
@@ -93,8 +143,7 @@ export const upsertStoreKeyVotes = db.transaction((keyVotes: KeyVote[]) => {
             keyVotes[i].type, 
             keyVotes[i].rate, 
             keyVotes[i].sig, 
-            keyVotes[i].sid,
-            keyVotes[i].spk
+            keyVotes[i].sid
         )
     }
 });
@@ -125,7 +174,7 @@ export const upsertStoreAssetVotes = db.transaction((assetVotes: AssetVote[]) =>
         DELETE FROM ASSET_VOTE WHERE uri=? AND model = ? AND sid = ?
     `);
     const stmt_insert = db.prepare(`
-        INSERT INTO ASSET_VOTE (ts, uri, format, hash, type, rate, model, sig, sid, spk) VALUES(?,?,?,?,?,?,?,?,?,?)
+        INSERT INTO ASSET_VOTE (ts, uri, format, hash, type, rate, model, sig, sid) VALUES(?,?,?,?,?,?,?,?,?)
     `);
     for (const i in assetVotes) {
         stmt_delete.run(assetVotes[i].uri, assetVotes[i].model, assetVotes[i].sid)
@@ -138,8 +187,7 @@ export const upsertStoreAssetVotes = db.transaction((assetVotes: AssetVote[]) =>
             assetVotes[i].rate, 
             assetVotes[i].model, 
             assetVotes[i].sig, 
-            assetVotes[i].sid,
-            assetVotes[i].spk
+            assetVotes[i].sid
         )
     }
 })

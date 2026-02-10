@@ -30,8 +30,7 @@ const initializeStoreSchema = () => {
             rate INTEGER,
             model TEXT,
             sig TEXT,
-            sid TEXT,
-            spk TEXT
+            sid TEXT
         )
     `;
     db.prepare(assetVoteTable).run();
@@ -45,8 +44,7 @@ const initializeStoreSchema = () => {
             type TEXT,
             rate INTEGER,
             sig TEXT,
-            sid TEXT,
-            spk TEXT
+            sid TEXT
         )
     `;
     db.prepare(keyVoteTable).run();
@@ -70,7 +68,7 @@ export const refreshStoreKeyVotes = db.transaction((keyVotes: KeyVote[]) => {
         DELETE FROM KEY_VOTE WHERE 1=1
     `);
     const stmt_insert = db.prepare(`
-        INSERT INTO KEY_VOTE (ts, kid, type, rate, sig, sid, spk) VALUES(?,?,?,?,?,?,?)
+        INSERT INTO KEY_VOTE (ts, kid, type, rate, sig, sid) VALUES(?,?,?,?,?,?)
     `);
     stmt_clear.run();
     for (const i in keyVotes) {
@@ -80,8 +78,7 @@ export const refreshStoreKeyVotes = db.transaction((keyVotes: KeyVote[]) => {
             keyVotes[i].type,
             keyVotes[i].rate,
             keyVotes[i].sig,
-            keyVotes[i].sid,
-            keyVotes[i].spk
+            keyVotes[i].sid
         )
     }
 });
@@ -91,7 +88,7 @@ export const upsertStoreKeyVotes = db.transaction((keyVotes: KeyVote[]) => {
         DELETE FROM KEY_VOTE WHERE kid=? AND sid=?
     `);
     const stmt_insert = db.prepare(`
-        INSERT INTO KEY_VOTE (ts, kid, type, rate, sig, sid, spk) VALUES(?,?,?,?,?,?,?)
+        INSERT INTO KEY_VOTE (ts, kid, type, rate, sig, sid) VALUES(?,?,?,?,?,?)
     `);
     
     for (const i in keyVotes) {
@@ -102,8 +99,7 @@ export const upsertStoreKeyVotes = db.transaction((keyVotes: KeyVote[]) => {
             keyVotes[i].type,
             keyVotes[i].rate,
             keyVotes[i].sig,
-            keyVotes[i].sid,
-            keyVotes[i].spk
+            keyVotes[i].sid
         )
     }
 });
@@ -134,7 +130,7 @@ export const refreshStoreAssetVotes = db.transaction((assetVotes: AssetVote[]) =
         DELETE FROM ASSET_VOTE WHERE 1=1
     `);
     const stmt_insert = db.prepare(`
-        INSERT INTO ASSET_VOTE (ts, uri, format, hash, type, rate, model, sig, sid, spk) VALUES(?,?,?,?,?,?,?,?,?,?)
+        INSERT INTO ASSET_VOTE (ts, uri, format, hash, type, rate, model, sig, sid) VALUES(?,?,?,?,?,?,?,?,?)
     `);
     stmt_clear.run();
     for (const i in assetVotes) {
@@ -147,8 +143,7 @@ export const refreshStoreAssetVotes = db.transaction((assetVotes: AssetVote[]) =
             assetVotes[i].rate, 
             assetVotes[i].model, 
             assetVotes[i].sig, 
-            assetVotes[i].sid,
-            assetVotes[i].spk
+            assetVotes[i].sid
         )
     }
 });
@@ -158,7 +153,7 @@ export const upsertStoreAssetVotes = db.transaction((assetVotes: AssetVote[]) =>
         DELETE FROM ASSET_VOTE WHERE uri=? AND model=? AND sid=?
     `);
     const stmt_insert = db.prepare(`
-        INSERT INTO ASSET_VOTE (ts, uri, format, hash, type, rate, model, sig, sid, spk) VALUES(?,?,?,?,?,?,?,?,?,?)
+        INSERT INTO ASSET_VOTE (ts, uri, format, hash, type, rate, model, sig, sid) VALUES(?,?,?,?,?,?,?,?,?)
     `);
     
     for (const i in assetVotes) {
@@ -172,8 +167,7 @@ export const upsertStoreAssetVotes = db.transaction((assetVotes: AssetVote[]) =>
             assetVotes[i].rate, 
             assetVotes[i].model, 
             assetVotes[i].sig, 
-            assetVotes[i].sid, 
-            assetVotes[i].spk
+            assetVotes[i].sid
         )
     }
 });

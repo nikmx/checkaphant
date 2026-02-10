@@ -1,7 +1,7 @@
 import {Args, Command, Flags} from '@oclif/core'
 import { assetVotes, AssetVote, checkAssetVotes } from '../../models/assetVote';
 
-export default class CheckAsset extends Command {
+export default class CheckAssetVote extends Command {
   static args = {
     uri: Args.string({description: 'asset uri', required: true}),    
   }
@@ -16,9 +16,9 @@ export default class CheckAsset extends Command {
   }
 
   async run(): Promise<void> {
-    const {args, flags} = await this.parse(CheckAsset)
+    const {args, flags} = await this.parse(CheckAssetVote)
 
     const res = checkAssetVotes(args.uri, flags.hash, flags.asset, flags.format)
-    this.log(`check result:\n\n${JSON.stringify(res)}\n\n(./src/commands/check/asset.ts)`)
+    this.log(`check result:\n\n${JSON.stringify(res)}\n`)
   }
 }

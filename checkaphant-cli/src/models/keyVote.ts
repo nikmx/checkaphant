@@ -1,6 +1,7 @@
 import { registerKeyVote, revokeKeyVote, syncKeyVotesIndex } from '../lib/registry';
 import {refreshStoreKeyVotes, NestedKeyVotes, loadStoreKeyVotes, upsertStoreKeyVotes, deleteStoreKeyVotes} from './store'
 import {gpg} from '../services/gpg'
+import {DigitalIdentity} from './digitalIdentity'
 const fs = require('node:fs');
 
 export interface KeyVote {
@@ -10,24 +11,19 @@ export interface KeyVote {
   rate: number;
   sig: string;
   sid: string;
-  spk: string; // gpg pub-key
-  // trust: string; // from gpg trustdb on sig verification!?
 }
 
 export const KEY_VOTE_TYPES = ["void", "intent", "suspicious", "danger"]
 
 export const signKeyVote = async (keyVote: KeyVote) => {
-  const sid = await gpg.getId()
-  const spk = await gpg.getPublicKey()
-  keyVote.sid = sid
-  keyVote.spk = spk
   const sig = await gpg.signDoc(JSON.stringify(keyVote))
   keyVote.sig = sig
   return keyVote;
 };
 
-export const validateKeyVote = async (keyVote: KeyVote) => {
-  await gpg.importKey(keyVote.spk)
+export const validateKeyVote = async (keyVote: KeyVote, dId: DigitalIdentity|undefined) => {
+  //if (dId)
+  //  await gpg.importKey(dId.pubkey)
   const sig = keyVote.sig
   keyVote.sig = ''
   return gpg.verifySignature(sig, JSON.stringify(keyVote))
@@ -44,21 +40,21 @@ export const checkKeyVotes = (kid: string) => {
   return votes;
 };
 
-export const setKeyVote = (keyVote: KeyVote, local=false) => {
+export const setKeyVote = (keyVote: KeyVote, dId: DigitalIdentity, local=false) => {
   if (local) {
     upsertStoreKeyVotes([keyVote])
     keyVotes = loadStoreKeyVotes()
   } else {
-    registerKeyVote(keyVote)
+    registerKeyVote(keyVote, dId)
   }
 };
 
-export const unsetKeyVote = (keyVote: KeyVote, local=false) => {
+export const unsetKeyVote = (keyVote: KeyVote, dId: DigitalIdentity, local=false) => {
   if (local) {
     deleteStoreKeyVotes([keyVote])
     keyVotes = loadStoreKeyVotes()
   } else {
-    revokeKeyVote(keyVote)
+    revokeKeyVote(keyVote, dId)
   }
 };
 

@@ -1,24 +1,21 @@
 import { createHash } from 'node:crypto'
 import {refreshStoreAssetVotes, loadStoreAssetVotes, NestedAssetVotes, upsertStoreAssetVotes, deleteStoreAssetVotes} from './store'
 import {registerAssetVote, revokeAssetVote, syncAssetVotesIndex} from '../lib/registry'
+import {DigitalIdentity} from './digitalIdentity'
 import {gpg} from '../services/gpg'
 const fs = require('node:fs');
 
 
-//import { GPG } from 'gpg-ts'
-
 export interface AssetVote {
-  ts: number;
-  uri: string;
+  ts: number;     // timestamp
+  uri: string;    // unique identifier think url, package-name/version, any resolveable
   format: string; // format how to consume content
-  hash: string; // sha-512 of consumed content
-  type: string;
-  rate: number;
-  model: string;
-  sig: string;
-  sid: string;
-  spk: string; // gpg pub-key
-  // trust: string; // from gpg trustdb on sig verification!?
+  hash: string;   // sha-512 of consumed content
+  type: string;   // vote type
+  rate: number;   // vote rating out of [-10,10]
+  model: string;  // applies to a certain model only, will be put to generic 
+  sig: string;    // gpg detached signature
+  sid: string;    // gpg key-id
 }
 
 export const ASSET_VOTE_TYPES = ["void", "intent", "process", "execute", "suspicious", "danger"]
@@ -36,17 +33,14 @@ export const signAssetVote = async (assetVote: AssetVote, asset: string|undefine
     }
     assetVote.hash = hashAssetVoteContent(fs.readFileSync(asset))
   }
-  const sid = await gpg.getId()
-  const spk = await gpg.getPublicKey()
-  assetVote.sid = sid
-  assetVote.spk = spk
   const sig = await gpg.signDoc(JSON.stringify(assetVote))
   assetVote.sig = sig
   return assetVote;
 };
 
-export const validateAssetVote = async (assetVote: AssetVote) => {
-  await gpg.importKey(assetVote.spk)
+export const validateAssetVote = async (assetVote: AssetVote, dId: DigitalIdentity|undefined) => {
+  if (dId)
+    await gpg.importKey(dId.pubkey)
   const sig = assetVote.sig
   assetVote.sig = ''
   return gpg.verifySignature(sig, JSON.stringify(assetVote))
@@ -71,22 +65,21 @@ export const checkAssetVotes = (uri: string, hash: string|undefined, asset: stri
   return votes;
 };
 
-export const setAssetVote = (assetVote: AssetVote, local=false) => {
+export const setAssetVote = (assetVote: AssetVote, dId: DigitalIdentity, local=false) => {
   if (local) {
     upsertStoreAssetVotes([assetVote])
     assetVotes = loadStoreAssetVotes()
   } else {
-    registerAssetVote(assetVote)
+    registerAssetVote(assetVote, dId)
   }
 };
 
-
-export const unsetAssetVote = (assetVote: AssetVote, local=false) => {
+export const unsetAssetVote = (assetVote: AssetVote, dId: DigitalIdentity, local=false) => {
   if (local) {
     deleteStoreAssetVotes([assetVote])
     assetVotes = loadStoreAssetVotes()
   } else {
-    revokeAssetVote(assetVote)
+    revokeAssetVote(assetVote, dId)
   }
 };
 

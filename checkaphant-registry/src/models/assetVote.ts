@@ -1,6 +1,7 @@
 //import {GPG} from 'gpg-ts'
 import {deleteStoreAssetVotes, loadStoreAssetVotes, NestedAssetVotes, upsertStoreAssetVotes} from './store'
 import {gpg} from '../services/gpg'
+import { DigitalIdentity } from './digitalIdentity';
 const fs = require('node:fs');
 
 export interface AssetVote {
@@ -12,22 +13,22 @@ export interface AssetVote {
   rate: number; // numeric rating between -10 and 10
   model: string; // applies for certain model
   sig: string; // gpg signature
-  sid: string; // gpg kid
-  spk: string; // gpg pub-key
+  sid: string; // gpg key-id
 }
 
 export const ASSET_VOTE_TYPES = ["void", "intent", "process", "execute", "suspicious", "danger"]
 
-export const validateAssetVote = async (assetVote: AssetVote) => {
-  await gpg.importKey(assetVote.spk)
+export const validateAssetVote = async (assetVote: AssetVote, dId: DigitalIdentity|undefined) => {
+  if (dId)
+    await gpg.importKey(dId.pubkey)
   const sig = assetVote.sig
   assetVote.sig = ''
   return gpg.verifySignature(sig, JSON.stringify(assetVote))
 };
 
-export const validateAssetVoteAndOwnership = (assetVote: AssetVote, refAssetVote: AssetVote, failIfEqual: boolean = true) => {
-  validateAssetVote(assetVote);
-  if(assetVote.spk !== refAssetVote.spk)
+export const validateAssetVoteAndOwnership = (assetVote: AssetVote, dId: DigitalIdentity, refAssetVote: AssetVote, failIfEqual: boolean = true) => {
+  validateAssetVote(assetVote, dId);
+  if(assetVote.sid !== refAssetVote.sid)
     throw new Error("Votes have different owners.")
   if(failIfEqual && assetVote.sig === refAssetVote.sig)
     throw new Error("Votes are equal.")
@@ -35,6 +36,8 @@ export const validateAssetVoteAndOwnership = (assetVote: AssetVote, refAssetVote
 
 export const setAssetVote = (assetVote: AssetVote) => {
   upsertStoreAssetVotes([assetVote])
+  assetVotes[assetVote.uri] = assetVotes[assetVote.uri] || {}
+  assetVotes[assetVote.uri][assetVote.model] = assetVotes[assetVote.uri][assetVote.model] || {}
   assetVotes[assetVote.uri][assetVote.model][assetVote.sid] = assetVote
 };
 

@@ -1,22 +1,34 @@
 import { Request, Response, NextFunction } from 'express';
 import { keyVotes, KeyVote, validateKeyVote, validateKeyVoteAndOwnership, setKeyVote, unsetKeyVote } from '../models/keyVote';
-import { NestedKeyVotes } from '../models/store';
+import { NestedDigitalIdentities, NestedKeyVotes } from '../models/store';
+import { dIds, DigitalIdentity } from '../models/digitalIdentity';
 
-const _flatten_key_votes = (assetVotes: NestedKeyVotes) => {
+const _flatten_key_votes = (keyVotes: NestedKeyVotes, dIds: NestedDigitalIdentities, kid: string|undefined = undefined) => {
   const flat : KeyVote[] = []
-  for(const i in assetVotes) {
-    for(const j in assetVotes[i]) {
-      flat.push(assetVotes[i][j])
+  const flatIds : DigitalIdentity[] = []
+
+  const kidx = (kid && [kid]) || Object.keys(keyVotes)
+  let iidx: {[key: string]: boolean} = {}
+
+  for(const i in kidx) {
+    for(const j in keyVotes[i]) {
+      if(!iidx[j]) {
+        flatIds.push(dIds[j])
+        iidx[j] = true
+      }
+      flat.push(keyVotes[i][j])
     }
   }
-  return flat
+
+  return {votes: flat, ids: flatIds}
 }
 
 // Create a vote
 export const createKeyVote = (req: Request, res: Response, next: NextFunction) => {
   try {
     const newKeyVote: KeyVote = req.body.vote;
-    validateKeyVote(newKeyVote);
+    const dId: DigitalIdentity = req.body.id;
+    validateKeyVote(newKeyVote, dId);
     setKeyVote(newKeyVote);
     res.status(201).json({vote: newKeyVote});
   } catch (error) {
@@ -27,7 +39,7 @@ export const createKeyVote = (req: Request, res: Response, next: NextFunction) =
 // Read all keyVotes
 export const getKeyVotes = (req: Request, res: Response, next: NextFunction) => {
   try {
-    res.json({votes: _flatten_key_votes(keyVotes)});
+    res.json({votes: _flatten_key_votes(keyVotes, dIds)});
   } catch (error) {
     next(error);
   }
@@ -37,27 +49,12 @@ export const getKeyVotes = (req: Request, res: Response, next: NextFunction) => 
 export const getKeyVotesByKeys = (req: Request, res: Response, next: NextFunction) => {
   try {
     const kid = req.query.kid as string;
-    const sid = req.query.sid as string;
-    let votes: KeyVote[] = []
-    if (kid && keyVotes[kid]) {
-      if(sid && keyVotes[kid][sid]) {
-        votes = [keyVotes[kid][sid]]        
-      } else {
-        votes = Object.values(keyVotes[kid])
-      }
-    } else if (sid) {
-      for(const i in keyVotes) {
-        if(keyVotes[i][sid]) {
-          votes.push(keyVotes[i][sid])
-        }
-      }
-    }
-    
-    if (votes.length === 0) {
+    const ret = _flatten_key_votes(keyVotes, dIds, kid)
+    if (ret.votes.length === 0) {
       res.status(404).json({ message: 'No votes found' });
       return;
     }
-    res.json({votes: votes});
+    res.json(ret);
   } catch (error) {
     next(error);
   }
@@ -74,7 +71,8 @@ export const updateKeyVote = (req: Request, res: Response, next: NextFunction) =
       return;
     }
     const newVote: KeyVote = req.body.vote
-    validateKeyVoteAndOwnership(newVote, vote);
+    const dId: DigitalIdentity = req.body.id;
+    validateKeyVoteAndOwnership(newVote, dId, vote);
     setKeyVote(newVote);
     res.json({vote: newVote});
   } catch (error) {
@@ -93,7 +91,8 @@ export const deleteKeyVote = (req: Request, res: Response, next: NextFunction) =
       return;
     }
     const newVote: KeyVote = req.body.vote
-    validateKeyVoteAndOwnership(newVote, vote);
+    const dId: DigitalIdentity = req.body.id;
+    validateKeyVoteAndOwnership(newVote, dId, vote);
     unsetKeyVote(vote)
     res.json({vote: vote});
   } catch (error) {

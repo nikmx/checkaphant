@@ -1,7 +1,7 @@
 import {Args, Command, Flags} from '@oclif/core'
 import { keyVotes, KeyVote, checkKeyVotes } from '../../models/keyVote';
 
-export default class CheckKey extends Command {
+export default class CheckKeyVote extends Command {
   static args = {
     kid: Args.string({description: 'gpg key-id', required: true})
   }
@@ -16,9 +16,9 @@ export default class CheckKey extends Command {
   }
 
   async run(): Promise<void> {
-    const {args, flags} = await this.parse(CheckKey)
+    const {args, flags} = await this.parse(CheckKeyVote)
 
     const res = checkKeyVotes(args.kid)
-    this.log(`check result:\n\n${JSON.stringify(res)}\n\n(./src/commands/check/key.ts)`)
+    this.log(`check result:\n\n${JSON.stringify(res)}\n`)
   }
 }

@@ -38,7 +38,7 @@ export class GpgClient {
     public async importKey(key: string): Promise<string> {
         const tmpDir = await _tmpdir()
         try {            
-            const keyFile = join(tmpDir, "key.dat")
+            const keyFile = join(tmpDir, "key.gpg")
             fs.writeFileSync(keyFile, key)
             const args = this.gpgArgs.concat(["--import"])
             return _cmd(this.gpgCmd, keyFile, args)
