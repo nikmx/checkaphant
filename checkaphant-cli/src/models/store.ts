@@ -56,7 +56,7 @@ export const loadStoreKeyVotes = () => {
     const stmt = db.prepare(`
         SELECT * FROM KEY_VOTE
     `);
-    return stmt.all().map((st: NestedKeyVotes, i: KeyVote) => {
+    return stmt.all().reduce((st: NestedKeyVotes, i: KeyVote) => {
         st[i.kid] = st[i.kid] || []
         st[i.kid].push(i)
         return st
@@ -117,7 +117,7 @@ export const loadStoreAssetVotes = () => {
     const stmt = db.prepare(`
         SELECT * FROM ASSET_VOTE
     `);
-    return stmt.all().map((st: NestedAssetVotes, i: AssetVote) => {
+    return stmt.all().reduce((st: NestedAssetVotes, i: AssetVote) => {
         st[i.uri] = st[i.uri] || {}
         st[i.uri][i.hash] = st[i.uri][i.hash] || []
         st[i.uri][i.hash].push(i)

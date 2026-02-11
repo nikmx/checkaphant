@@ -32,7 +32,6 @@ export default class SignKeyVote extends Command {
       sig: ''
     }    
     newKeyVote = await signKeyVote(newKeyVote)
-    console.log(dId)
     if(flags.revoke)
       unsetKeyVote(newKeyVote, dId, !!flags.local)
     else

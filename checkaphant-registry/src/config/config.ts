@@ -12,7 +12,7 @@ const config: Config = {
   port: Number(process.env.PORT) || 3000,
   indexFile: process.env.CHECKAPHANT_INDEX_FILE || '.store.db',
   keyringFile: process.env.CHECKAPHANT_KEYRING_FILE || null,
-  keyId: process.env.CHECKAPHANT_PUBKEY_ID || null
+  keyId: process.env.CHECKAPHANT_PUBKEY_ID || 'sig@gc.test'
 };
 
 export default config;

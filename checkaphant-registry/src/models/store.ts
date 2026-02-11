@@ -76,7 +76,7 @@ export const loadStoreDigitalIdentities = () => {
     const stmt = db.prepare(`
         SELECT * FROM DIGITAL_IDENTITY
     `);
-    return stmt.all().map((st: NestedDigitalIdentities, i: DigitalIdentity) => {
+    return stmt.all().reduce((st: NestedDigitalIdentities, i: DigitalIdentity) => {
         st[i.id] = i
         return st
     }, {});
@@ -112,7 +112,7 @@ export const loadStoreKeyVotes = () => {
     const stmt = db.prepare(`
         SELECT * FROM KEY_VOTE
     `);
-    return stmt.all().map((st: NestedKeyVotes, i: KeyVote) => {
+    return stmt.all().reduce((st: NestedKeyVotes, i: KeyVote) => {
         st[i.kid] = st[i.kid] || {}
         st[i.kid][i.sid] = st[i.kid][i.sid] = i
         return st
@@ -152,7 +152,7 @@ export const loadStoreAssetVotes = () => {
     const stmt = db.prepare(`
         SELECT * FROM ASSET_VOTE
     `);
-    return stmt.all().map((st: NestedAssetVotes, i: AssetVote) => {
+    return stmt.all().reduce((st: NestedAssetVotes, i: AssetVote) => {
         st[i.uri] = st[i.uri] || {}
         st[i.uri][i.model] = st[i.uri][i.model] || {}
         st[i.uri][i.model][i.sid] = i

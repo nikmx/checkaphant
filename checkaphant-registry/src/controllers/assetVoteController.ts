@@ -7,31 +7,36 @@ const _flatten_asset_votes = (assetVotes: NestedAssetVotes, dIds: NestedDigitalI
   const flat : AssetVote[] = []
   const flatIds : DigitalIdentity[] = []
 
-  const uidx = (uri && [uri]) || Object.keys(assetVotes)
+  let uidx: string[] = Object.keys(assetVotes)
+  if(uri)
+    uidx = [uri]
   let iidx: {[key: string]: boolean} = {}
 
   for(const i in uidx) {
-    const midx = (model && [model]) || Object.keys(assetVotes[i])
-    for(const j in midx) {
-      for(const k in assetVotes[i][j]) {
-        if(!iidx[k]) {
-          flatIds.push(dIds[k])
-          iidx[k] = true
+    let midx: string[] = Object.keys(assetVotes[uidx[i]])
+    if(model)
+      midx = [model]
+
+    for(const j in midx) {      
+      for(const k in assetVotes[uidx[i]][midx[j]]) {          
+        if(!iidx[assetVotes[uidx[i]][midx[j]][k].sid]) {
+          flatIds.push(dIds[assetVotes[uidx[i]][midx[j]][k].sid])
+          iidx[assetVotes[uidx[i]][midx[j]][k].sid] = true
         }
-        flat.push(assetVotes[i][j][k])
-      }
-    }
+        flat.push(assetVotes[uidx[i]][midx[j]][k])          
+      }      
+    }    
   }
 
   return {votes: flat, ids: flatIds}
 }
 
 // Create an vote
-export const createAssetVote = (req: Request, res: Response, next: NextFunction) => {
+export const createAssetVote = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const newAssetVote: AssetVote = req.body.vote;
     const dId: DigitalIdentity = req.body.id;
-    validateAssetVote(newAssetVote, dId);
+    await validateAssetVote(newAssetVote, dId);
     setAssetVote(newAssetVote);
     setDigitalIdentity(dId);
     res.status(201).json({vote: newAssetVote});
@@ -67,7 +72,7 @@ export const getAssetVotesByKeys = (req: Request, res: Response, next: NextFunct
 };
 
 // Update an vote
-export const updateAssetVote = (req: Request, res: Response, next: NextFunction) => {
+export const updateAssetVote = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const uri= req.body.vote.uri;
     const sid= req.body.vote.sid;
@@ -79,7 +84,7 @@ export const updateAssetVote = (req: Request, res: Response, next: NextFunction)
     }
     const newVote: AssetVote = req.body.vote
     const dId: DigitalIdentity = req.body.id;
-    validateAssetVoteAndOwnership(newVote, dId, vote)
+    await validateAssetVoteAndOwnership(newVote, dId, vote)
     setAssetVote(newVote)
 
     res.json({vote: newVote});
@@ -89,7 +94,7 @@ export const updateAssetVote = (req: Request, res: Response, next: NextFunction)
 };
 
 // Delete an vote
-export const deleteAssetVote = (req: Request, res: Response, next: NextFunction) => {
+export const deleteAssetVote = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const uri= req.body.vote.uri;
     const sid= req.body.vote.sid;
@@ -101,7 +106,7 @@ export const deleteAssetVote = (req: Request, res: Response, next: NextFunction)
     }
     const newVote: AssetVote = req.body.vote
     const dId: DigitalIdentity = req.body.id;
-    validateAssetVoteAndOwnership(newVote, dId, vote)
+    await validateAssetVoteAndOwnership(newVote, dId, vote)
     unsetAssetVote(vote)
     res.json({vote: vote});
   } catch (error) {

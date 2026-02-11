@@ -37,27 +37,30 @@ export class GpgClient {
 
     public async importKey(key: string): Promise<string> {
         const tmpDir = await _tmpdir()
+        const keyFile = join(tmpDir, "key.pub")
         try {            
-            const keyFile = join(tmpDir, "key.gpg")
             fs.writeFileSync(keyFile, key)
             const args = this.gpgArgs.concat(["--import"])
             return _cmd(this.gpgCmd, keyFile, args)
         } finally {
-            fs.rm(tmpDir, { recursive: true })
+            fs.unlink(keyFile)
+            fs.rm(tmpDir)
         }
     }
 
     public async verifySignature(sig: string, doc: string): Promise<string> {
         const tmpDir = await _tmpdir()
-        try {
-            const sigFile = join(tmpDir, "doc.sig")
-            const docFile = join(tmpDir, "doc.dat")
+        const sigFile = join(tmpDir, "doc.sig")
+        const docFile = join(tmpDir, "doc.dat")
+        try {            
             fs.writeFileSync(sigFile, sig)
             fs.writeFileSync(docFile, doc)
             const args = this.gpgArgs.concat(["--verify", sigFile])
             return _cmd(this.gpgCmd, docFile, args);
         } finally {
-            fs.rm(tmpDir, { recursive: true })
+            fs.unlink(sigFile)
+            fs.unlink(docFile)
+            fs.rm(tmpDir)
         }
     }
 
@@ -68,16 +71,19 @@ export class GpgClient {
 
     public async signDoc(doc: string): Promise<string> {
         const tmpDir = await _tmpdir()
+        const sigFile = join(tmpDir, "doc.sig")
+        const docFile = join(tmpDir, "doc.dat")
         try {
-            const sigFile = join(tmpDir, "doc.sig")
-            const docFile = join(tmpDir, "doc.dat")
+
             fs.writeFileSync(docFile, doc)
             const args = ["-c", this._getSignDocCmd(docFile, sigFile)]
             await _cmdInteractive("sh", null, args);
             const sig = fs.readFileSync(sigFile, 'utf8');
             return sig;
         } finally {
-            fs.rm(tmpDir, { recursive: true })
+            fs.unlink(sigFile)
+            fs.unlink(docFile)
+            fs.rm(tmpDir)
         }
     }
 

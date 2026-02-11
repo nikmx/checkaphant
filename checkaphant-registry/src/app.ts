@@ -8,8 +8,8 @@ const app = express();
 app.use(express.json());
 
 // Routes
-app.use('/api/v1/asset', keyVoteRoutes);
-app.use('/api/v1/key', assetVoteRoutes);
+app.use('/api/v1/key', keyVoteRoutes);
+app.use('/api/v1/asset', assetVoteRoutes);
 
 // Global error handler (should be after routes)
 app.use(errorHandler);

@@ -15,11 +15,12 @@ export interface KeyVote {
 export const KEY_VOTE_TYPES = ["void", "intent", "suspicious", "danger"]
 
 export const validateKeyVote = async (keyVote: KeyVote, dId: DigitalIdentity) => {
-  if (dId)
-    await gpg.importKey(dId.pubkey)
+  // if (dId)
+  //   await gpg.importKey(dId.pubkey)
+  const vt = Object.assign({}, keyVote)
   const sig = keyVote.sig
-  keyVote.sig = ''
-  return gpg.verifySignature(sig, JSON.stringify(keyVote))
+  vt.sig = ''
+  return gpg.verifySignature(sig, JSON.stringify(vt))
 };
 
 export const validateKeyVoteAndOwnership = async (keyVote: KeyVote, dId: DigitalIdentity, refKeyVote: KeyVote, failIfEqual: boolean = true) => {
@@ -32,6 +33,7 @@ export const validateKeyVoteAndOwnership = async (keyVote: KeyVote, dId: Digital
 
 export const setKeyVote = (keyVote: KeyVote) => {
   upsertStoreKeyVotes([keyVote])
+  keyVotes[keyVote.kid] = keyVotes[keyVote.kid] || {}
   keyVotes[keyVote.kid][keyVote.sid] = keyVote
 };
 

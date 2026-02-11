@@ -17,9 +17,8 @@ export function _listKeyVotes() {
 export function _registerKeyVote(keyVote: {}, dId: {}) {
   return http
     .post(`api/v1/key`, {vote: keyVote, id: dId})
-    .then((response) => response.data);
+    .then((response) => response.data.vote);
 }
-
 
 export function _revokeKeyVote(keyVote: {}, dId: {}) {
   return http
