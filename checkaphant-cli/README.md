@@ -33,9 +33,9 @@ USAGE
 * [`checkaphant-cli check key-votes KID`](#checkaphant-cli-check-key-votes-kid)
 * [`checkaphant-cli share asset-vote URI`](#checkaphant-cli-share-asset-vote-uri)
 * [`checkaphant-cli share key-vote KID`](#checkaphant-cli-share-key-vote-kid)
-* [`checkaphant-cli sign msg TXT`](#checkaphant-cli-sign-msg-txt)
+* [`checkaphant-cli sign asset CONTENT`](#checkaphant-cli-sign-asset-content)
 * [`checkaphant-cli sync`](#checkaphant-cli-sync)
-* [`checkaphant-cli verify msg TXT`](#checkaphant-cli-verify-msg-txt)
+* [`checkaphant-cli verify asset CONTENT`](#checkaphant-cli-verify-asset-content)
 
 ## `checkaphant-cli check asset-votes URI`
 
@@ -142,26 +142,32 @@ EXAMPLES
 
 _See code: [src/commands/share/key-vote.ts](https://github.com/nikmx/demo-checkaphant/blob/v0.0.0/src/commands/share/key-vote.ts)_
 
-## `checkaphant-cli sign msg TXT`
+## `checkaphant-cli sign asset CONTENT`
 
-sign a text message
+sign an asset
 
 ```
 USAGE
-  $ checkaphant-cli sign msg TXT
+  $ checkaphant-cli sign asset CONTENT [-f] [--sig <value>] [--sigfile] [--format <value>]
 
 ARGUMENTS
-  TXT  text to sign
+  CONTENT  content to sign
+
+FLAGS
+  -f, --file            text is a file
+      --format=<value>  content format
+      --sig=<value>     sig or path
+      --sigfile         sig is a file
 
 DESCRIPTION
-  sign a text message
+  sign an asset
 
 EXAMPLES
-  $ checkaphant-cli sign msg "some-message-block"
+  $ checkaphant-cli sign asset "content or path see flags"
   ...
 ```
 
-_See code: [src/commands/sign/msg.ts](https://github.com/nikmx/demo-checkaphant/blob/v0.0.0/src/commands/sign/msg.ts)_
+_See code: [src/commands/sign/asset.ts](https://github.com/nikmx/demo-checkaphant/blob/v0.0.0/src/commands/sign/asset.ts)_
 
 ## `checkaphant-cli sync`
 
@@ -181,27 +187,30 @@ EXAMPLES
 
 _See code: [src/commands/sync/index.ts](https://github.com/nikmx/demo-checkaphant/blob/v0.0.0/src/commands/sync/index.ts)_
 
-## `checkaphant-cli verify msg TXT`
+## `checkaphant-cli verify asset CONTENT`
 
-verify a signed text message
+verify a signed asset
 
 ```
 USAGE
-  $ checkaphant-cli verify msg TXT -s <value>
+  $ checkaphant-cli verify asset CONTENT [-f] [--sig <value>] [--sigfile] [--format <value>]
 
 ARGUMENTS
-  TXT  unsigned text
+  CONTENT  unsigned text
 
 FLAGS
-  -s, --sig=<value>  (required) gpg detached signature
+  -f, --file            content is a file
+      --format=<value>  path or sig
+      --sig=<value>     path or sig
+      --sigfile         sig is a file
 
 DESCRIPTION
-  verify a signed text message
+  verify a signed asset
 
 EXAMPLES
-  $ checkaphant-cli verify msg "some-message-block" --sig="detached-gpg-sig"
+  $ checkaphant-cli verify asset "content or path see flags" --sig "sig or path"
   ...
 ```
 
-_See code: [src/commands/verify/msg.ts](https://github.com/nikmx/demo-checkaphant/blob/v0.0.0/src/commands/verify/msg.ts)_
+_See code: [src/commands/verify/asset.ts](https://github.com/nikmx/demo-checkaphant/blob/v0.0.0/src/commands/verify/asset.ts)_
 <!-- commandsstop -->

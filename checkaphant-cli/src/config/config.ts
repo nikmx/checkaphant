@@ -11,7 +11,10 @@ const config: Config = {
   relays: [process.env.CHECKAPHANT_RELAY || "http://localhost:3000"],
   indexFile: process.env.CHECKAPHANT_INDEX_FILE || '.store.db',
   keyringFile: process.env.CHECKAPHANT_KEYRING_FILE || null,
-  keyId: process.env.CHECKAPHANT_PUBKEY_ID || 'sig@gc.test',  
+  keyId: process.env.CHECKAPHANT_PUBKEY_ID || '',  
 };
+
+if(!config.keyId)
+  throw Error("You need to provide the gpg key-id to use via env variable e.g. `CHECKAPHANT_PUBKEY_ID=my@user.sample`")
 
 export default config;

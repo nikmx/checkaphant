@@ -35,32 +35,50 @@ export class GpgClient {
         return _cmd(this.gpgCmd, null, args)
     }
 
-    public async importKey(key: string): Promise<string> {
-        const tmpDir = await _tmpdir()
-        const keyFile = join(tmpDir, "key.pub")
+    public async importKey(key: string, keyIsFile: boolean = false): Promise<string> {
+        let tmpDir: string = "none"
+        let keyFile = key
         let p = Promise.resolve("")
-        try {            
-            fs.writeFileSync(keyFile, key)
-            const args = this.gpgArgs.concat(["--import"])
-            p = _cmd(this.gpgCmd, keyFile, args)
+        try {
+            if(!keyIsFile) { 
+                tmpDir = await _tmpdir()
+                keyFile = join(tmpDir, "key.pub")
+                fs.writeFileSync(keyFile, key)
+            }
+            const args = this.gpgArgs.concat(["--import", keyFile])
+            p = _cmd(this.gpgCmd, null, args)
+        } catch(err) {
+            p = Promise.reject(err)
         } finally {
-            fs.rm(tmpDir, {recursive: true, force: true}, (err: Error) => {})
+            if(!keyIsFile)
+                fs.rm(tmpDir, {recursive: true, force: true}, (err: Error) => {})
         }
         return p
     }
 
-    public async verifySignature(sig: string, doc: string): Promise<string> {
-        const tmpDir = await _tmpdir()
-        const sigFile = join(tmpDir, "doc.sig")
-        const docFile = join(tmpDir, "doc.dat")
+    public async verifySignature(sig: string, doc: string, sigIsFile: boolean = false, docIsFile: boolean = false): Promise<string> {
+        let tmpDir: string = "none"
+        let docFile: string = doc
+        let sigFile: string = sig
         let p: Promise<string> = Promise.resolve("")
-        try {            
-            fs.writeFileSync(sigFile, sig)
-            fs.writeFileSync(docFile, doc)
-            const args = this.gpgArgs.concat(["--verify", sigFile])
-            p = _cmd(this.gpgCmd, docFile, args);
+        try {
+            if(!sigIsFile || !docIsFile)
+                tmpDir = await _tmpdir()        
+            if(!docIsFile) {
+                docFile = join(tmpDir, "doc.dat")
+                fs.writeFileSync(docFile, doc)
+            }
+            if(!sigIsFile) {
+                sigFile = docFile.concat(".sig")  
+                fs.writeFileSync(sigFile, sig)
+            }
+            const args = this.gpgArgs.concat(["--verify", sigFile, docFile])
+            p = _cmd(this.gpgCmd, null, args);
+        } catch(err) {
+            p = Promise.reject(err)
         } finally {
-            fs.rm(tmpDir, {recursive: true, force: true}, (err: Error) => {})
+            if(!sigIsFile || !docIsFile)
+                fs.rm(tmpDir, {recursive: true, force: true}, (err: Error) => {})
         }
         return p
     }
@@ -70,18 +88,24 @@ export class GpgClient {
         return `${this.gpgCmd} ${args.join(" ")} ${docFile}`
     }
 
-    public async signDoc(doc: string): Promise<string> {
-        const tmpDir = await _tmpdir()
-        const sigFile = join(tmpDir, "doc.sig")
-        const docFile = join(tmpDir, "doc.dat")
-        let sig: string = ""
-        try {
-            fs.writeFileSync(docFile, doc)
+    public async signDoc(doc: string, docIsFile: boolean = false): Promise<string> {
+        let tmpDir: string = "none"
+        let docFile: string = doc
+        let sig: string = "" 
+        try { 
+            if(!docIsFile)
+                tmpDir = await _tmpdir()        
+            if(!docIsFile) {
+                docFile = join(tmpDir, "doc.dat")
+                fs.writeFileSync(docFile, doc)
+            }
+            const sigFile = docFile.concat(".sig")                              
             const args = ["-c", this._getSignDocCmd(docFile, sigFile)]
             await _cmdInteractive("sh", null, args);
             sig = await fs.readFileSync(sigFile, 'utf8');            
         } finally {
-            fs.rm(tmpDir, {recursive: true, force: true}, (err: Error) => {})
+            if(!docIsFile)
+                fs.rm(tmpDir, {recursive: true, force: true}, (err: Error) => {})
         }
         return sig;
     }
