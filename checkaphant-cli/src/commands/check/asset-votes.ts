@@ -19,6 +19,6 @@ export default class CheckAssetVote extends Command {
     const {args, flags} = await this.parse(CheckAssetVote)
 
     const res = checkAssetVotes(args.uri, flags.hash, flags.asset, flags.format)
-    this.log(`check result:\n\n${JSON.stringify(res)}\n`)
+    this.log(`${JSON.stringify(res)}`)
   }
 }

@@ -2,7 +2,7 @@ import {Args, Command, Flags} from '@oclif/core'
 import { assetVotes, AssetVote, signAssetVote, setAssetVote, unsetAssetVote, hashAssetVoteContent, ASSET_VOTE_TYPES } from '../../models/assetVote'
 import { getCurrentDigitalIdentity } from '../../models/digitalIdentity'
 
-export default class SignAssetVote extends Command {
+export default class ShareAssetVote extends Command {
   static args = {
       uri: Args.string({description: 'uri', required: true}),    
     }
@@ -23,7 +23,7 @@ export default class SignAssetVote extends Command {
   }
 
   async run(): Promise<void> {
-    const {args, flags} = await this.parse(SignAssetVote)    
+    const {args, flags} = await this.parse(ShareAssetVote)    
     const dId = await getCurrentDigitalIdentity()
     let newAssetVote: AssetVote = {
       ts: Date.now(), 

@@ -4,7 +4,7 @@ import { registerKeyVote } from '../../lib/registry';
 import { gpg } from '../../services/gpg'
 import { getCurrentDigitalIdentity } from '../../models/digitalIdentity';
 
-export default class SignKeyVote extends Command {
+export default class ShareKeyVote extends Command {
   static args = {
         kid: Args.string({description: 'gpg key-id', required: true}),
       }
@@ -21,7 +21,7 @@ export default class SignKeyVote extends Command {
   }
 
   async run(): Promise<void> {
-    const {args, flags} = await this.parse(SignKeyVote)
+    const {args, flags} = await this.parse(ShareKeyVote)
     const dId = await getCurrentDigitalIdentity()
     let newKeyVote: KeyVote = {
       ts: Date.now(),

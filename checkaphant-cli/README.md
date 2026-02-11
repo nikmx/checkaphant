@@ -31,9 +31,11 @@ USAGE
 <!-- commands -->
 * [`checkaphant-cli check asset-votes URI`](#checkaphant-cli-check-asset-votes-uri)
 * [`checkaphant-cli check key-votes KID`](#checkaphant-cli-check-key-votes-kid)
-* [`checkaphant-cli sign asset-vote URI`](#checkaphant-cli-sign-asset-vote-uri)
-* [`checkaphant-cli sign key-vote KID`](#checkaphant-cli-sign-key-vote-kid)
+* [`checkaphant-cli share asset-vote URI`](#checkaphant-cli-share-asset-vote-uri)
+* [`checkaphant-cli share key-vote KID`](#checkaphant-cli-share-key-vote-kid)
+* [`checkaphant-cli sign msg TXT`](#checkaphant-cli-sign-msg-txt)
 * [`checkaphant-cli sync`](#checkaphant-cli-sync)
+* [`checkaphant-cli verify msg TXT`](#checkaphant-cli-verify-msg-txt)
 
 ## `checkaphant-cli check asset-votes URI`
 
@@ -81,13 +83,13 @@ EXAMPLES
 
 _See code: [src/commands/check/key-votes.ts](https://github.com/nikmx/demo-checkaphant/blob/v0.0.0/src/commands/check/key-votes.ts)_
 
-## `checkaphant-cli sign asset-vote URI`
+## `checkaphant-cli share asset-vote URI`
 
 sign asset vote
 
 ```
 USAGE
-  $ checkaphant-cli sign asset-vote URI [--hash <value>] [--asset <value>] [--format <value>] [--type
+  $ checkaphant-cli share asset-vote URI [--hash <value>] [--asset <value>] [--format <value>] [--type
     void|intent|process|execute|suspicious|danger] [--rate <value>] [--model <value>] [-l] [-r]
 
 ARGUMENTS
@@ -108,18 +110,18 @@ DESCRIPTION
   sign asset vote
 
 EXAMPLES
-  $ checkaphant-cli sign asset-vote
+  $ checkaphant-cli share asset-vote
 ```
 
-_See code: [src/commands/sign/asset-vote.ts](https://github.com/nikmx/demo-checkaphant/blob/v0.0.0/src/commands/sign/asset-vote.ts)_
+_See code: [src/commands/share/asset-vote.ts](https://github.com/nikmx/demo-checkaphant/blob/v0.0.0/src/commands/share/asset-vote.ts)_
 
-## `checkaphant-cli sign key-vote KID`
+## `checkaphant-cli share key-vote KID`
 
 sign key vote
 
 ```
 USAGE
-  $ checkaphant-cli sign key-vote KID [--type void|intent|suspicious|danger] [--rate <value>] [-l <value>] [-r]
+  $ checkaphant-cli share key-vote KID [--type void|intent|suspicious|danger] [--rate <value>] [-l <value>] [-r]
 
 ARGUMENTS
   KID  gpg key-id
@@ -135,10 +137,31 @@ DESCRIPTION
   sign key vote
 
 EXAMPLES
-  $ checkaphant-cli sign key-vote some-gpg-key-id
+  $ checkaphant-cli share key-vote some-gpg-key-id
 ```
 
-_See code: [src/commands/sign/key-vote.ts](https://github.com/nikmx/demo-checkaphant/blob/v0.0.0/src/commands/sign/key-vote.ts)_
+_See code: [src/commands/share/key-vote.ts](https://github.com/nikmx/demo-checkaphant/blob/v0.0.0/src/commands/share/key-vote.ts)_
+
+## `checkaphant-cli sign msg TXT`
+
+sign a text message
+
+```
+USAGE
+  $ checkaphant-cli sign msg TXT
+
+ARGUMENTS
+  TXT  text to sign
+
+DESCRIPTION
+  sign a text message
+
+EXAMPLES
+  $ checkaphant-cli sign msg "some-message-block"
+  ...
+```
+
+_See code: [src/commands/sign/msg.ts](https://github.com/nikmx/demo-checkaphant/blob/v0.0.0/src/commands/sign/msg.ts)_
 
 ## `checkaphant-cli sync`
 
@@ -157,4 +180,28 @@ EXAMPLES
 ```
 
 _See code: [src/commands/sync/index.ts](https://github.com/nikmx/demo-checkaphant/blob/v0.0.0/src/commands/sync/index.ts)_
+
+## `checkaphant-cli verify msg TXT`
+
+verify a signed text message
+
+```
+USAGE
+  $ checkaphant-cli verify msg TXT -s <value>
+
+ARGUMENTS
+  TXT  unsigned text
+
+FLAGS
+  -s, --sig=<value>  (required) gpg detached signature
+
+DESCRIPTION
+  verify a signed text message
+
+EXAMPLES
+  $ checkaphant-cli verify msg "some-message-block" --sig="detached-gpg-sig"
+  ...
+```
+
+_See code: [src/commands/verify/msg.ts](https://github.com/nikmx/demo-checkaphant/blob/v0.0.0/src/commands/verify/msg.ts)_
 <!-- commandsstop -->

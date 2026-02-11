@@ -43,8 +43,7 @@ export class GpgClient {
             const args = this.gpgArgs.concat(["--import"])
             return _cmd(this.gpgCmd, keyFile, args)
         } finally {
-            fs.unlink(keyFile)
-            fs.rm(tmpDir)
+            fs.rm(tmpDir, {recursive: true, force: true}, (err: Error) => {})
         }
     }
 
@@ -58,9 +57,7 @@ export class GpgClient {
             const args = this.gpgArgs.concat(["--verify", sigFile, docFile])
             return _cmd(this.gpgCmd, "", args);
         } finally {
-            fs.unlink(sigFile)
-            fs.unlink(docFile)
-            fs.rm(tmpDir)
+            fs.rm(tmpDir, {recursive: true, force: true}, (err: Error) => {})
         }
     }
 
@@ -80,9 +77,7 @@ export class GpgClient {
             const sig = fs.readFileSync(sigFile, 'utf8');
             return sig;
         } finally {
-            fs.unlink(sigFile)
-            fs.unlink(docFile)
-            fs.rm(tmpDir)
+            fs.rm(tmpDir, {recursive: true, force: true}, (err: Error) => {})
         }
     }
 

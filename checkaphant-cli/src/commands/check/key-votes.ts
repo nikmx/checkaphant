@@ -11,14 +11,12 @@ export default class CheckKeyVote extends Command {
 ...
 `,
   ]
-  static flags = {
-    //from: Flags.string({char: 'f', description: 'Who is saying hello', required: true}),
-  }
+  static flags = {}
 
   async run(): Promise<void> {
     const {args, flags} = await this.parse(CheckKeyVote)
 
     const res = checkKeyVotes(args.kid)
-    this.log(`check result:\n\n${JSON.stringify(res)}\n`)
+    this.log(`${JSON.stringify(res)}`)
   }
 }

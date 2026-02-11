@@ -38,30 +38,31 @@ export class GpgClient {
     public async importKey(key: string): Promise<string> {
         const tmpDir = await _tmpdir()
         const keyFile = join(tmpDir, "key.pub")
+        let p = Promise.resolve("")
         try {            
             fs.writeFileSync(keyFile, key)
             const args = this.gpgArgs.concat(["--import"])
-            return _cmd(this.gpgCmd, keyFile, args)
+            p = _cmd(this.gpgCmd, keyFile, args)
         } finally {
-            fs.unlink(keyFile)
-            fs.rm(tmpDir)
+            fs.rm(tmpDir, {recursive: true, force: true}, (err: Error) => {})
         }
+        return p
     }
 
     public async verifySignature(sig: string, doc: string): Promise<string> {
         const tmpDir = await _tmpdir()
         const sigFile = join(tmpDir, "doc.sig")
         const docFile = join(tmpDir, "doc.dat")
+        let p: Promise<string> = Promise.resolve("")
         try {            
             fs.writeFileSync(sigFile, sig)
             fs.writeFileSync(docFile, doc)
             const args = this.gpgArgs.concat(["--verify", sigFile])
-            return _cmd(this.gpgCmd, docFile, args);
+            p = _cmd(this.gpgCmd, docFile, args);
         } finally {
-            fs.unlink(sigFile)
-            fs.unlink(docFile)
-            fs.rm(tmpDir)
+            fs.rm(tmpDir, {recursive: true, force: true}, (err: Error) => {})
         }
+        return p
     }
 
     private _getSignDocCmd(docFile: string, sigFile: string|null = null): string {
@@ -73,18 +74,16 @@ export class GpgClient {
         const tmpDir = await _tmpdir()
         const sigFile = join(tmpDir, "doc.sig")
         const docFile = join(tmpDir, "doc.dat")
+        let sig: string = ""
         try {
-
             fs.writeFileSync(docFile, doc)
             const args = ["-c", this._getSignDocCmd(docFile, sigFile)]
             await _cmdInteractive("sh", null, args);
-            const sig = fs.readFileSync(sigFile, 'utf8');
-            return sig;
+            sig = await fs.readFileSync(sigFile, 'utf8');            
         } finally {
-            fs.unlink(sigFile)
-            fs.unlink(docFile)
-            fs.rm(tmpDir)
+            fs.rm(tmpDir, {recursive: true, force: true}, (err: Error) => {})
         }
+        return sig;
     }
 
     public async updateTrustdb(checkOnly: boolean = true): Promise<string> {
