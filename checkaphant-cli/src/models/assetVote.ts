@@ -3,6 +3,7 @@ import {refreshStoreAssetVotes, loadStoreAssetVotes, NestedAssetVotes, upsertSto
 import {registerAssetVote, revokeAssetVote, syncAssetVotesIndex} from '../lib/registry'
 import {DigitalIdentity} from './digitalIdentity'
 import {gpg} from '../services/gpg'
+import {evaluateAssetPolicy, PolicyDecision} from '../lib/policy'
 const fs = require('node:fs');
 
 
@@ -47,7 +48,7 @@ export const validateAssetVote = async (assetVote: AssetVote, dId: DigitalIdenti
 };
 
 export const getAssetVotes = (uri: string, hash: string) => {
-  const votes = assetVotes[uri][hash]
+  const votes = assetVotes[uri]?.[hash] || []
   return votes;
 };
 
@@ -61,8 +62,15 @@ export const checkAssetVotes = (uri: string, hash: string|undefined, asset: stri
     hash = hashAssetVoteContent(fs.readFileSync(asset))
   }
   const votes = getAssetVotes(uri, hash)
+  const policy: PolicyDecision = evaluateAssetPolicy(votes)
   // transform to output format
-  return votes;
+  return {
+    uri,
+    hash,
+    format: format || '',
+    votes,
+    policy,
+  };
 };
 
 export const setAssetVote = (assetVote: AssetVote, dId: DigitalIdentity, local=false) => {

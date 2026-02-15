@@ -2,6 +2,7 @@ import { registerKeyVote, revokeKeyVote, syncKeyVotesIndex } from '../lib/regist
 import {refreshStoreKeyVotes, NestedKeyVotes, loadStoreKeyVotes, upsertStoreKeyVotes, deleteStoreKeyVotes} from './store'
 import {gpg} from '../services/gpg'
 import {DigitalIdentity} from './digitalIdentity'
+import {evaluateKeyPolicy, PolicyDecision} from '../lib/policy'
 const fs = require('node:fs');
 
 export interface KeyVote {
@@ -30,14 +31,19 @@ export const validateKeyVote = async (keyVote: KeyVote, dId: DigitalIdentity|und
 };
 
 export const getKeyVotes = (kid: string) => {
-  const votes = keyVotes[kid]
+  const votes = keyVotes[kid] || []
   return votes;
 };
 
 export const checkKeyVotes = (kid: string) => {
   const votes = getKeyVotes(kid)
+  const policy: PolicyDecision = evaluateKeyPolicy(votes)
   // transform to output format
-  return votes;
+  return {
+    kid,
+    votes,
+    policy,
+  };
 };
 
 export const setKeyVote = (keyVote: KeyVote, dId: DigitalIdentity, local=false) => {
