@@ -22,7 +22,7 @@ export function _registerKeyVote(keyVote: {}, dId: {}) {
 
 export function _revokeKeyVote(keyVote: {}, dId: {}) {
   return http
-    .post(`api/v1/key/revoke`, {vote: keyVote, id: dId})
+    .put(`api/v1/key/revoke`, {vote: keyVote, id: dId})
     .then((response) => response.data);
 }
 
